@@ -1,5 +1,4 @@
 <?php
-// table_base.php
 require __DIR__ . "/cnx.php";
 
 function render_table_page(PDO $conn, string $title, string $whereSql, array $params = []): void {
@@ -11,59 +10,67 @@ function render_table_page(PDO $conn, string $title, string $whereSql, array $pa
   $stmt->execute($params);
   $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  ?>
-  <!doctype html>
-  <html lang="fr">
-  <head>
-    <meta charset="utf-8">
-    <title><?= htmlspecialchars($title) ?></title>
-    <style>
-      body{font-family:Arial;margin:20px}
-      table{border-collapse:collapse;width:100%;margin-bottom:20px}
-      th,td{border:1px solid #ccc;padding:6px;font-size:13px}
-      th{background:#f3f3f3}
-      nav a{margin-right:12px}
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="form.php">+ Ajouter</a>
-      <a href="table_d109.php">D109</a>
-      <a href="table_d180.php">D180</a>
-      <a href="table_d305.php">D305</a>
-      <a href="table_autres.php">Autres</a>
-    </nav>
-    <hr>
+  $t = strtoupper($title);
+  $isD109 = str_contains($t, 'D109');
+  $isD180 = str_contains($t, 'D180');
+  $isD305 = str_contains($t, 'D305');
+  $isAutres = str_contains(strtolower($title), 'autres');
+?>
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title><?= htmlspecialchars($title) ?></title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container wide">
 
-    <h2><?= htmlspecialchars($title) ?> (<?= count($rows) ?>)</h2>
+  <nav>
+    <a href="form.php">+ Ajouter</a>
+    <a href="table_d109.php" class="<?= $isD109 ? 'active' : '' ?>">D109</a>
+    <a href="table_d180.php" class="<?= $isD180 ? 'active' : '' ?>">D180</a>
+    <a href="table_d305.php" class="<?= $isD305 ? 'active' : '' ?>">D305</a>
+    <a href="table_autres.php" class="<?= $isAutres ? 'active' : '' ?>">Autres</a>
+  </nav>
 
-    <?php if (!$rows): ?>
-      <p>Aucune donnée.</p>
-    <?php else: ?>
+  <h2><?= htmlspecialchars($title) ?> (<?= count($rows) ?>)</h2>
+
+  <?php if (!$rows): ?>
+    <div class="table-wrapper">
+      <div class="empty-state">Aucune donnée.</div>
+    </div>
+  <?php else: ?>
+    <div class="table-wrapper">
       <table>
-        <tr>
-          <th>REF</th><th>Description</th><th>Format</th><th>Client</th>
-          <th>Stock PF</th><th>Stock FB</th><th>Stock</th>
-          <th>Arrivage</th><th>Cde Italie</th><th>Couverture</th>
-        </tr>
+        <thead>
+          <tr>
+            <th>REF</th><th>DESCRIPTION</th><th>FORMAT</th><th>CLIENT</th>
+            <th>STOCK PF</th><th>STOCK FB</th><th>STOCK</th>
+            <th>ARRIVAGE</th><th>CDE ITALIE</th><th>COUVERTURE</th>
+          </tr>
+        </thead>
+        <tbody>
         <?php foreach($rows as $r): ?>
           <tr>
-            <td><?= htmlspecialchars($r['ref']) ?></td>
-            <td><?= htmlspecialchars((string)$r['description']) ?></td>
-            <td><?= htmlspecialchars((string)$r['format']) ?></td>
-            <td><?= htmlspecialchars((string)$r['client']) ?></td>
+            <td title="<?= htmlspecialchars($r['ref']) ?>"><?= htmlspecialchars($r['ref']) ?></td>
+            <td title="<?= htmlspecialchars((string)$r['description']) ?>"><?= htmlspecialchars((string)$r['description']) ?></td>
+            <td title="<?= htmlspecialchars((string)$r['format']) ?>"><?= htmlspecialchars((string)$r['format']) ?></td>
+            <td title="<?= htmlspecialchars((string)$r['client']) ?>"><?= htmlspecialchars((string)$r['client']) ?></td>
             <td><?= (int)$r['stock_pf'] ?></td>
             <td><?= (int)$r['stock_fb'] ?></td>
             <td><?= (int)$r['stock'] ?></td>
             <td><?= (int)$r['arrivage'] ?></td>
             <td><?= (int)$r['cde_italie'] ?></td>
-            <td><?= htmlspecialchars((string)$r['couverture']) ?></td>
+            <td><?= (int)$r['couverture'] ?></td>
           </tr>
         <?php endforeach; ?>
+        </tbody>
       </table>
-    <?php endif; ?>
+    </div>
+  <?php endif; ?>
 
-  </body>
-  </html>
-  <?php
-}
+</div>
+</body>
+</html>
+<?php } ?>
