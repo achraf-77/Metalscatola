@@ -57,12 +57,10 @@ foreach($rows as $row){
 
     $stock_pf = (int)($row["stock_pf"] ?? 0);
     $stock_fb = (int)($row["stock_fb"] ?? 0);
+    $stock = (int)($row["stock"] ?? 0);
     $arrivage = (int)($row["arrivage"] ?? 0);
     $cde_italie = (int)($row["cde_italie"] ?? 0);
-
-    // الحساب هنا
-    $stock = $stock_pf + $stock_fb;
-    $couverture = $stock + $arrivage + $cde_italie;
+    $couverture = (int)($row["couverture"] ?? 0);
 
     try{
 

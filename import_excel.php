@@ -418,13 +418,13 @@ require __DIR__ . "/cnx.php";
                     <span class="format-col-tag">CLIENT</span>
                     <span class="format-col-tag">STOCK PF</span>
                     <span class="format-col-tag">STOCK FB</span>
+                    <span class="format-col-tag">STOCK</span>
                     <span class="format-col-tag">ARRIVAGE</span>
                     <span class="format-col-tag">CDE ITALIE</span>
-                    <span class="format-col-tag" style="background:linear-gradient(135deg,#2d6a4f,#40916c)">STOCK (calculé)</span>
-                    <span class="format-col-tag" style="background:linear-gradient(135deg,#2d6a4f,#40916c)">COUVERTURE (calculé)</span>
+                    <span class="format-col-tag">COUVERTURE</span>
                 </div>
                 <p style="font-size:.78rem;color:var(--text-muted);margin-top:10px;">
-                    * = obligatoire &nbsp;|&nbsp; <strong>FORMAT</strong> détermine le tableau de destination (D109, D180, D305, Autres) &nbsp;|&nbsp; <strong>STOCK</strong> = Stock PF + Stock FB &nbsp;|&nbsp; <strong>COUVERTURE</strong> = Stock + Arrivage + Cde Italie
+                    * = obligatoire &nbsp;|&nbsp; <strong>FORMAT</strong> détermine le tableau de destination (D109, D180, D305, Autres)
                 </p>
             </div>
         </div>
@@ -445,8 +445,10 @@ require __DIR__ . "/cnx.php";
             { key: 'client',      label: 'CLIENT',           required: false },
             { key: 'stock_pf',    label: 'STOCK PF',         required: false },
             { key: 'stock_fb',    label: 'STOCK FB',         required: false },
+            { key: 'stock',       label: 'STOCK',            required: false },
             { key: 'arrivage',    label: 'ARRIVAGE',         required: false },
-            { key: 'cde_italie',  label: 'CDE ITALIE',      required: false }
+            { key: 'cde_italie',  label: 'CDE ITALIE',      required: false },
+            { key: 'couverture',  label: 'COUVERTURE',       required: false }
         ];
 
         // ── DOM Elements ──
@@ -598,8 +600,10 @@ require __DIR__ . "/cnx.php";
                 'client':      ['client', 'clt', 'customer', 'acheteur'],
                 'stock_pf':    ['stockpf', 'pf', 'produitfini', 'produitsfinis'],
                 'stock_fb':    ['stockfb', 'fb', 'fabrication'],
+                'stock':       ['stock', 'totalstock'],
                 'arrivage':    ['arrivage', 'arr', 'reception', 'réception'],
-                'cde_italie':  ['cdeitalie', 'cdeit', 'commandeitalie', 'italie', 'cde']
+                'cde_italie':  ['cdeitalie', 'cdeit', 'commandeitalie', 'italie', 'cde'],
+                'couverture':  ['couverture', 'couv']
             };
 
             if (mappings[dbKey]) {
@@ -630,18 +634,9 @@ require __DIR__ . "/cnx.php";
                 return;
             }
 
-            // Add computed columns to header
-            const allHeaderKeys = [...mappedKeys];
-            const hasNumericCols = mapping.stock_pf || mapping.stock_fb || mapping.arrivage || mapping.cde_italie;
-            if (hasNumericCols) {
-                allHeaderKeys.push('_stock', '_couverture');
-            }
-
             // Build header
             previewHead.innerHTML = '<tr>' +
-                allHeaderKeys.map(k => {
-                    if (k === '_stock') return '<th style="background:linear-gradient(135deg,#2d6a4f,#40916c)">STOCK</th>';
-                    if (k === '_couverture') return '<th style="background:linear-gradient(135deg,#2d6a4f,#40916c)">COUVERTURE</th>';
+                mappedKeys.map(k => {
                     const col = dbColumns.find(c => c.key === k);
                     return '<th>' + (col ? col.label : k) + '</th>';
                 }).join('') + '</tr>';
@@ -649,19 +644,12 @@ require __DIR__ . "/cnx.php";
             // Build body (first 15 rows)
             const previewRows = parsedData.slice(0, 15);
             previewBody.innerHTML = previewRows.map(row => {
-                // Get numeric values for computed columns
-                const pf  = parseInt(row[mapping.stock_pf] || 0, 10) || 0;
-                const fb  = parseInt(row[mapping.stock_fb] || 0, 10) || 0;
-                const arr = parseInt(row[mapping.arrivage] || 0, 10) || 0;
-                const cde = parseInt(row[mapping.cde_italie] || 0, 10) || 0;
-                const stock = pf + fb;
-                const couverture = stock + arr + cde;
-
-                return '<tr>' + allHeaderKeys.map(k => {
-                    if (k === '_stock') return '<td style="font-weight:700;color:#2d6a4f">' + stock + '</td>';
-                    if (k === '_couverture') return '<td style="font-weight:700;color:#2d6a4f">' + couverture + '</td>';
+                return '<tr>' + mappedKeys.map(k => {
                     const val = row[mapping[k]] ?? '';
-                    return '<td>' + escapeHtml(String(val)) + '</td>';
+                    if (k === 'stock' || k === 'couverture') {
+                        return '<td style="font-weight:700;color:#2d6a4f">' + (typeof escapeHtml === 'function' ? escapeHtml(String(val)) : String(val).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</td>';
+                    }
+                    return '<td>' + (typeof escapeHtml === 'function' ? escapeHtml(String(val)) : String(val).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</td>';
                 }).join('') + '</tr>';
             }).join('');
 
@@ -691,14 +679,14 @@ require __DIR__ . "/cnx.php";
                     if (mapping[col.key]) {
                         let val = row[mapping[col.key]] ?? '';
                         // Convert numeric fields to numbers
-                        if (['stock_pf', 'stock_fb', 'arrivage', 'cde_italie'].includes(col.key)) {
+                        if (['stock_pf', 'stock_fb', 'stock', 'arrivage', 'cde_italie', 'couverture'].includes(col.key)) {
                             val = parseInt(val, 10) || 0;
                         } else {
                             val = String(val).trim();
                         }
                         obj[col.key] = val;
                     } else {
-                        obj[col.key] = ['stock_pf', 'stock_fb', 'arrivage', 'cde_italie'].includes(col.key) ? 0 : '';
+                        obj[col.key] = ['stock_pf', 'stock_fb', 'stock', 'arrivage', 'cde_italie', 'couverture'].includes(col.key) ? 0 : '';
                     }
                 });
                 return obj;
