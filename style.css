@@ -113,6 +113,8 @@ nav{
   flex-wrap: wrap;
 }
 
+
+
 nav a{
   display:inline-flex;
   align-items:center;
@@ -304,7 +306,7 @@ table{
 .container.wide table{
   width: 100%;
   table-layout: fixed;
-  min-width: 1200px; /* shows all columns with scroll if screen small */
+  min-width: 1200px; 
 }
 
 /* Header = same gray as navbar */

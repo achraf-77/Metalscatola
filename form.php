@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <head>
     <meta charset="utf-8">
-    <title>Ajouter / Modifier</title>
+    <title>Ajouter / Modifier </title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -56,75 +56,82 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <div class="topbar">
             <div class="brand">
-        <img src="assets/logo.png" alt="Metalscatola Afrique" class="logo-img">
+                <img src="assets/logo.png" alt="Metalscatola Afrique" class="logo-img">
             </div>
-
             <div class="actions">
-                <a class="btn primary" href="table_autres.php">Voir le tableau</a>
-                <button class="btn green" type="submit" form="approForm">Enregistrer</button>
+                <a class="btn primary" href="form.php">+ Ajouter</a>
+                <a class="btn primary" href="import_excel.php">Importer Excel</a>
+                <a class="btn primary" href="table_last.php">Dernier Excel</a>
+                <a class="btn primary" href="historique.php">Historique</a>
             </div>
         </div>
 
-        <div class="card">
-            <h2>Ajouter / Modifier un produit</h2>
-
-            <form method="post" id="approForm">
-                <div class="form-grid">
-
-                    <div>
-                        <label>Référence (REF)</label>
-                        <input name="ref" required placeholder="Ex: D109-007">
-                    </div>
-
-                    <div>
-                        <label>Client</label>
-                        <input name="client" placeholder="Nom du client">
-                    </div>
-
-                    <div>
-                        <label>Description</label>
-                        <input name="description" placeholder="Description du produit">
-                    </div>
-
-                    <div>
-                        <label>Format</label>
-                        <input name="format" id="format" placeholder="Ex: D305x335 VI/IMP">
-                    </div>
-
-                    <div>
-                        <label>Stock PF</label>
-                        <input type="number" name="stock_pf" id="stock_pf" value="0">
-                    </div>
-
-                    <div>
-                        <label>Stock FB</label>
-                        <input type="number" name="stock_fb" id="stock_fb" value="0">
-                    </div>
-
-                    <div>
-                        <label>Arrivage</label>
-                        <input type="number" name="arrivage" id="arrivage" value="0">
-                    </div>
-
-                    <div>
-                        <label>Cde Italie</label>
-                        <input type="number" name="cde_italie" id="cde_italie" value="0">
-                    </div>
-
-                </div>
-
-                <hr>
-
-                <p><b>Stock:</b> <span id="stock_calc">0</span></p>
-                <p><b>Couverture:</b> <span id="couv_calc">0</span></p>
-
-                <div class="form-actions">
-                    <a class="btn primary" href="table_autres.php">Retour</a>
-                    <button class="btn green" type="submit">Enregistrer</button>
-                </div>
-            </form>
-
+        <div class="actions">
+            <a class="btn primary" href="table_autres.php">Voir le tableau</a>
+            <button class="btn green" type="submit" form="approForm">Enregistrer</button>
         </div>
+    </div>
+
+    <div class="card">
+        <h2>Ajouter / Modifier un produit</h2>
+
+        <form method="post" id="approForm">
+            <div class="form-grid">
+
+                <div>
+                    <label>Référence (REF)</label>
+                    <input name="ref" required placeholder="Ex: D109-007">
+                </div>
+
+                <div>
+                    <label>Client</label>
+                    <input name="client" placeholder="Nom du client">
+                </div>
+
+                <div>
+                    <label>Description</label>
+                    <input name="description" placeholder="Description du produit">
+                </div>
+
+                <div>
+                    <label>Format</label>
+                    <input name="format" id="format" placeholder="Ex: D305x335 VI/IMP">
+                </div>
+
+                <div>
+                    <label>Stock PF</label>
+                    <input type="number" name="stock_pf" id="stock_pf" value="0">
+                </div>
+
+                <div>
+                    <label>Stock FB</label>
+                    <input type="number" name="stock_fb" id="stock_fb" value="0">
+                </div>
+
+                <div>
+                    <label>Arrivage</label>
+                    <input type="number" name="arrivage" id="arrivage" value="0">
+                </div>
+
+                <div>
+                    <label>Cde Italie</label>
+                    <input type="number" name="cde_italie" id="cde_italie" value="0">
+                </div>
+
+            </div>
+
+            <hr>
+
+            <p><b>Stock:</b> <span id="stock_calc">0</span></p>
+            <p><b>Couverture:</b> <span id="couv_calc">0</span></p>
+
+            <div class="form-actions">
+                <a class="btn primary" href="table_autres.php">Retour</a>
+                <button class="btn green" type="submit">Enregistrer</button>
+            </div>
+        </form>
+
+    </div>
     </div>
 
     <script>

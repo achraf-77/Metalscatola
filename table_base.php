@@ -26,12 +26,15 @@ function render_table_page(PDO $conn, string $title, string $whereSql, array $pa
 <body>
 <div class="container wide">
 
-  <nav>
+  <nav> 
     <a href="form.php">+ Ajouter</a>
     <a href="table_d109.php" class="<?= $isD109 ? 'active' : '' ?>">D109</a>
     <a href="table_d180.php" class="<?= $isD180 ? 'active' : '' ?>">D180</a>
     <a href="table_d305.php" class="<?= $isD305 ? 'active' : '' ?>">D305</a>
     <a href="table_autres.php" class="<?= $isAutres ? 'active' : '' ?>">Autres</a>
+    <a href="import_excel.php">Importer Excel</a>
+    <a href="historique.php">Historique</a>
+    <a href="table_last.php">Dernier Excel</a>
   </nav>
 
   <h2><?= htmlspecialchars($title) ?> (<?= count($rows) ?>)</h2>
