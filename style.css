@@ -1,5 +1,5 @@
 /* ============================================================
-   METALSCATOLA — Stock Manager (Final)
+   METALSCATOLA — Stock Manager (Fixed Layout)
    Gray Navbar + Gray Table Head + Red Titles/REF + Red Save
    ============================================================ */
 
@@ -57,65 +57,92 @@ body{
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Container ---------- */
-.container{
-  max-width: 100%;
-  max-width: 100%;
+/* ==========================================================
+   LAYOUT — Single global container, no nesting
+   ========================================================== */
+
+.page-container {
+  width: 95%;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0px;
+  padding: 20px 0;
 }
 
-/* Tables only: full width */
-.container.wide{
+/* Legacy .container.wide — maps to same rules so older pages
+   that haven't been migrated yet still look correct.        */
+.container.wide {
+  width: 95%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+/* Plain .container — for centered, narrower content */
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+/* Prevent nested containers from doubling spacing */
+.container .container,
+.container.wide .container,
+.container.wide .container.wide,
+.page-container .page-container,
+.page-container .container {
   width: 100%;
   max-width: 100%;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
+  margin: 0;
 }
 
-.container.wide {
-    width: 95%;
-    margin: auto;
-}
+/* ==========================================================
+   TOPBAR — Logo + action buttons (form page, etc.)
+   ========================================================== */
 
-.table-wrapper {
-    background: white;
-    border-radius: 12px;
-    overflow-x: auto;
-    padding: 10px;
-}
-/* ---------- Top Bar (form page) ---------- */
 .topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: linear-gradient(135deg, var(--brand-gray-1), var(--brand-gray-2));
-  color:#fff;
+  color: #fff;
   padding: 16px 28px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .topbar .brand{
   font-size: 1.2rem;
   font-weight: 700;
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .logo-img{
   height: 44px;
   width: auto;
-  display:block;
+  display: block;
 }
 
-.actions{ display:flex; gap: 12px; align-items:center; }
+.actions{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
 
-/* ---------- NAV (table pages) ---------- */
+/* ==========================================================
+   NAV — Tab-style navigation bar (table pages)
+   ========================================================== */
+
 nav{
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   gap: 6px;
   background: linear-gradient(135deg, var(--brand-gray-1), var(--brand-gray-2));
   padding: 14px 24px;
@@ -125,41 +152,62 @@ nav{
   flex-wrap: wrap;
 }
 
-
-
 nav a{
-  display:inline-flex;
-  align-items:center;
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
   padding: 8px 18px;
   border-radius: var(--radius-sm);
-  text-decoration:none;
-  font-size:.875rem;
-  font-weight:600;
+  text-decoration: none;
+  font-size: .875rem;
+  font-weight: 600;
   color: rgba(255,255,255,.92);
   transition: all .25s var(--ease);
   border: 1px solid transparent;
+  white-space: nowrap;
 }
 
 nav a:hover{
   background: rgba(255,255,255,.16);
-  color:#fff;
+  color: #fff;
   transform: translateY(-1px);
 }
 
 nav a:first-child{
   background: rgba(255,255,255,.18);
-  color:#fff;
+  color: #fff;
   border: 1px solid rgba(255,255,255,.22);
 }
 
 nav a.active{
   background: rgba(224,49,49,.20);
   border-color: rgba(224,49,49,.30);
-  color:#fff;
+  color: #fff;
 }
 
-/* ---------- Card ---------- */
+/* Nav buttons (btn inside nav) — keep visible, override nav a */
+nav .btn {
+  border: none;
+}
+
+/* ==========================================================
+   PAGE TITLE h2 — Red accent
+   ========================================================== */
+
+h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--brand-red-2);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ==========================================================
+   CARD — Form wrapper
+   ========================================================== */
+
 .card{
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -178,23 +226,33 @@ nav a.active{
   margin-bottom: 24px;
   padding-bottom: 14px;
   border-bottom: 2px solid var(--gray-200);
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-/* ---------- Form Grid ---------- */
+/* ==========================================================
+   FORM GRID
+   ========================================================== */
+
 .form-grid{
-  display:grid;
+  display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 18px;
   margin-bottom: 24px;
 }
 
+.form-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 label{
-  display:block;
-  font-size:.8rem;
-  font-weight:600;
+  display: block;
+  font-size: .8rem;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: .6px;
@@ -202,7 +260,7 @@ label{
 }
 
 input, select, textarea{
-  width:100%;
+  width: 100%;
   padding: 10px 14px;
   border: 1.5px solid var(--gray-300);
   border-radius: var(--radius-sm);
@@ -211,19 +269,23 @@ input, select, textarea{
   color: var(--text-primary);
   background: var(--gray-50);
   transition: all .25s var(--ease);
-  outline:none;
+  outline: none;
 }
 input:hover, select:hover, textarea:hover{ border-color: var(--gray-500); }
 input:focus, select:focus, textarea:focus{
   border-color: var(--brand-gray-2);
-  background:#fff;
+  background: #fff;
   box-shadow: 0 0 0 3px rgba(80,82,93,.18);
 }
 
-/* ---------- Buttons ---------- */
+/* ==========================================================
+   BUTTONS
+   ========================================================== */
+
 .btn{
-  display:inline-flex;
-  align-items:center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 24px;
   border: none;
@@ -231,16 +293,18 @@ input:focus, select:focus, textarea:focus{
   font-family: inherit;
   font-size: .9rem;
   font-weight: 700;
-  cursor:pointer;
-  text-decoration:none;
+  cursor: pointer;
+  text-decoration: none;
   transition: all .25s var(--ease);
   line-height: 1.4;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn:active{ transform: scale(.97); }
 
 .btn.primary{
   background: linear-gradient(135deg, var(--brand-gray-1), var(--brand-gray-2));
-  color:#fff;
+  color: #fff;
   box-shadow: 0 4px 14px rgba(45,45,45,.25);
 }
 .btn.primary:hover{
@@ -250,7 +314,7 @@ input:focus, select:focus, textarea:focus{
 
 .btn.green{
   background: linear-gradient(135deg, var(--brand-red-1), var(--brand-red-2));
-  color:#fff;
+  color: #fff;
   box-shadow: 0 4px 14px rgba(224,49,49,.35);
 }
 .btn.green:hover{
@@ -258,8 +322,14 @@ input:focus, select:focus, textarea:focus{
   transform: translateY(-2px);
 }
 
+/* Small button variant — for use inside table cells */
+.btn.btn-sm {
+  padding: 6px 16px;
+  font-size: .82rem;
+}
+
 hr{
-  border:none;
+  border: none;
   height: 1px;
   background: var(--gray-200);
   margin: 20px 0;
@@ -272,7 +342,7 @@ hr{
 }
 .card p b{ color: var(--text-primary); font-weight: 700; margin-right: 4px; }
 .card p span{
-  display:inline-block;
+  display: inline-block;
   background: var(--gray-100);
   color: var(--brand-gray-2);
   font-weight: 800;
@@ -281,44 +351,67 @@ hr{
   font-size: .85rem;
 }
 
-/* ===========================
+/* ==========================================================
    TABLE PAGES
-   =========================== */
+   ========================================================== */
 
-/* Page title on table pages: RED */
-h2{
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--brand-red-2);
-  margin: 0 0 16px;
-  display:flex;
-  align-items:center;
-  gap: 10px;
-}
-
-/* Table wrapper */
+/* Table wrapper — always allows horizontal scroll */
 .table-wrapper{
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  margin-bottom: 24px;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 75vh;
   -webkit-overflow-scrolling: touch;
+  margin-bottom: 24px;
+}
+
+/* ── Custom scrollbar — always visible, easy to grab ── */
+
+/* Webkit (Chrome, Edge, Safari) */
+.table-wrapper::-webkit-scrollbar {
+  height: 14px;  /* horizontal scrollbar thickness */
+  width: 14px;   /* vertical scrollbar thickness */
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--gray-200);
+  border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--gray-500);
+  border-radius: 10px;
+  border: 3px solid var(--gray-200);
+  min-width: 60px;   /* ensure thumb is big enough to grab */
+  min-height: 60px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-gray-1);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:active {
+  background: var(--brand-gray-2);
+}
+
+.table-wrapper::-webkit-scrollbar-corner {
+  background: var(--gray-200);
+}
+
+/* Firefox */
+.table-wrapper {
+  scrollbar-width: auto;
+  scrollbar-color: var(--gray-500) var(--gray-200);
 }
 
 table{
   width: 100%;
   border-collapse: collapse;
   font-size: .875rem;
-}
-
-/* Make columns stable */
-.container.wide table{
-  width: 100%;
-  table-layout: auto; /* مهم */
-  min-width: unset;
+  table-layout: auto;
 }
 
 /* Header = same gray as navbar */
@@ -327,7 +420,7 @@ thead th{
   top: 0;
   z-index: 2;
   background: linear-gradient(135deg, var(--brand-gray-1), var(--brand-gray-2));
-  color:#fff;
+  color: #fff;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .5px;
@@ -335,7 +428,7 @@ thead th{
   padding: 14px 16px;
   text-align: left;
   white-space: nowrap;
-  border:none;
+  border: none;
 }
 
 tbody td{
@@ -344,58 +437,114 @@ tbody td{
   color: var(--text-primary);
   vertical-align: middle;
   transition: background .2s var(--ease);
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Allow text columns to wrap on very long content */
+tbody td.wrap-text {
+  white-space: normal;
+  word-break: break-word;
 }
 
 tbody tr:nth-child(even) td{ background: var(--gray-50); }
 tbody tr:hover td{ background: var(--gray-100); }
 
-/* Column widths (fix : REF + CLIENT) */
-.container.wide th:nth-child(1),
-.container.wide td:nth-child(1){
-  width: 125px;
+/* REF column — red accent */
+td:first-child {
   color: var(--brand-red-2);
   font-weight: 800;
 }
 
-.container.wide th:nth-child(2),
-.container.wide td:nth-child(2){
-  width: 320px;
-}
-
-.container.wide th:nth-child(3),
-.container.wide td:nth-child(3){
-  width: 170px;
-}
-
-.container.wide th:nth-child(4),
-.container.wide td:nth-child(4){
-  width: 140px;
-}
-
-/* numeric columns center */
+/* Numeric columns center — starting from 5th column */
 td:nth-child(n+5), th:nth-child(n+5){
-  text-align:center;
+  text-align: center;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
 
+/* Action column — buttons inside table cells */
+td form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+td form input[type="number"] {
+  width: 70px;
+  padding: 6px 8px;
+  font-size: .85rem;
+}
+
+td form .btn {
+  padding: 6px 14px;
+  font-size: .82rem;
+}
+
+/* Search bar */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.search-bar input[type="text"] {
+  width: 280px;
+  max-width: 100%;
+}
+
 /* Empty state */
 .empty-state{
-  text-align:center;
+  text-align: center;
   padding: 60px 20px;
   color: var(--text-muted);
 }
 
-/* Responsive */
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
 @media (max-width: 768px){
-  .container{ padding: 0px; }
-  .topbar{ flex-direction: column; gap: 12px; text-align:center; padding: 16px; }
-  nav{ padding: 12px; gap: 4px; }
-  nav a{ padding: 6px 12px; font-size: .8rem; }
+  .page-container,
+  .container,
+  .container.wide {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .topbar{
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    padding: 16px;
+  }
+
+  .actions {
+    justify-content: center;
+  }
+
+  nav{
+    padding: 12px;
+    gap: 4px;
+    justify-content: center;
+  }
+  nav a{
+    padding: 6px 12px;
+    font-size: .8rem;
+  }
+
   .form-grid{ grid-template-columns: 1fr; gap: 14px; }
+
   .card{ padding: 20px 16px; }
-  .container.wide table{ min-width: 1000px; }
+
+  /* Enable horizontal scroll for wide tables */
+  table {
+    min-width: 800px;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    flex-wrap: wrap;
+  }
 }
