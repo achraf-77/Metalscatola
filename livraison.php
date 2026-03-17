@@ -106,6 +106,7 @@ $history = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Livraison</title>
@@ -114,105 +115,59 @@ $history = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
 <body>
 
-<div class="container wide">
+    <div class="container wide">
 
-    <nav>
-        <a href="form.php">+ Ajouter</a>
-        <a href="import_excel.php">Importer Excel</a>
-        <a href="table_last.php">Dernier Excel</a>
-        <a href="historique.php">Historique</a>
-        <a href="historique_livraison.php">Historique de livraison</a>
-        <a href="livraison.php" class="active">Livraison</a>
-    </nav>
+        <nav>
+            <a href="form.php">+ Ajouter</a>
+            <a href="import_excel.php">Importer Excel</a>
+            <a href="table_last.php">Dernier Excel</a>
+            <a href="historique.php">Historique</a>
+            <a href="historique_livraison.php">Historique de livraison</a>
+            <a href="livraison.php" class="active">Livraison</a>
+        </nav>
 
-    <h2>Gestion des Livraisons</h2>
-<div>
-        <table>
-            <thead>
-                <tr>
-                    <th>REF</th>
-                    <th>Description</th>
-                    <th>Stock PF</th>
-                    <th>Stock FB</th>
-                    <th>Stock</th>
-                    <th>Arrivage</th>
-                    <th>Cde Italie</th>
-                    <th>Couverture</th>
-                    <th>Livraison</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php foreach ($rows as $r): ?>
+        <h2>Gestion des Livraisons</h2>
+        <div>
+            <table>
+                <thead>
                     <tr>
-                        <td><?= htmlspecialchars($r['ref']) ?></td>
-                        <td><?= htmlspecialchars($r['description']) ?></td>
-                        <td><?= (int)$r['stock_pf'] ?></td>
-                        <td><?= (int)$r['stock_fb'] ?></td>
-                        <td><?= (int)$r['stock'] ?></td>
-                        <td><?= (int)$r['arrivage'] ?></td>
-                        <td><?= (int)$r['cde_italie'] ?></td>
-                        <td><?= (int)$r['couverture'] ?></td>
-                        <td>
-                            <form method="post" style="display:flex;gap:6px;">
-                                <input type="hidden" name="ref" value="<?= htmlspecialchars($r['ref']) ?>">
-                                <input type="number" name="livraison" min="0" max="<?= (int)$r['stock_pf'] ?>" style="width:70px;">
-                                <button class="btn green" type="submit">OK</button>
-                            </form>
-                        </td>
+                        <th>REF</th>
+                        <th>Description</th>
+                        <th>Stock PF</th>
+                        <th>Stock FB</th>
+                        <th>Stock</th>
+                        <th>Arrivage</th>
+                        <th>Cde Italie</th>
+                        <th>Couverture</th>
+                        <th>Livraison</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+                    <?php foreach ($rows as $r): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($r['ref']) ?></td>
+                            <td><?= htmlspecialchars($r['description']) ?></td>
+                            <td><?= (int)$r['stock_pf'] ?></td>
+                            <td><?= (int)$r['stock_fb'] ?></td>
+                            <td><?= (int)$r['stock'] ?></td>
+                            <td><?= (int)$r['arrivage'] ?></td>
+                            <td><?= (int)$r['cde_italie'] ?></td>
+                            <td><?= (int)$r['couverture'] ?></td>
+                            <td>
+                                <form method="post" style="display:flex;gap:6px;">
+                                    <input type="hidden" name="ref" value="<?= htmlspecialchars($r['ref']) ?>">
+                                    <input type="number" name="livraison" min="0" max="<?= (int)$r['stock_pf'] ?>" style="width:70px;">
+                                    <button class="btn green" type="submit">OK</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <!-- TOTAL LIVRAISON -->
-    <h2>Total Livré</h2>
-
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>REF</th>
-                    <th>Total Livré</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($totals as $t): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($t['ref']) ?></td>
-                        <td><?= (int)$t['total_livraison'] ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- HISTORIQUE -->
-    <h2>Historique des Livraisons</h2>
-
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>REF</th>
-                    <th>Livraison</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($history as $h): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($h['ref']) ?></td>
-                        <td><?= (int)$h['livraison'] ?></td>
-                        <td><?= $h['date_livraison'] ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-</div>
 
 </body>
+
 </html>
