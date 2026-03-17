@@ -1,7 +1,7 @@
 <?php
 
 $host = '127.0.0.1';
-$dbname = 'Metalscatola_afrique';
+$dbname = 'Metalscatola';
 $user = 'root';
 $password = '';
 

@@ -59,19 +59,31 @@ body{
 
 /* ---------- Container ---------- */
 .container{
-  max-width: 1100px;
+  max-width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px 20px 60px;
+  padding: 0px;
 }
 
 /* Tables only: full width */
 .container.wide{
-  max-width: 98vw;
-  width: 98vw;
-  padding-left: 16px;
-  padding-right: 16px;
+  width: 100%;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
 }
 
+.container.wide {
+    width: 95%;
+    margin: auto;
+}
+
+.table-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow-x: auto;
+    padding: 10px;
+}
 /* ---------- Top Bar (form page) ---------- */
 .topbar{
   display:flex;
@@ -305,8 +317,8 @@ table{
 /* Make columns stable */
 .container.wide table{
   width: 100%;
-  table-layout: fixed;
-  min-width: 1200px; 
+  table-layout: auto; /* مهم */
+  min-width: unset;
 }
 
 /* Header = same gray as navbar */
@@ -340,7 +352,7 @@ tbody td{
 tbody tr:nth-child(even) td{ background: var(--gray-50); }
 tbody tr:hover td{ background: var(--gray-100); }
 
-/* Column widths (fix your problem: REF + CLIENT) */
+/* Column widths (fix : REF + CLIENT) */
 .container.wide th:nth-child(1),
 .container.wide td:nth-child(1){
   width: 125px;
@@ -379,7 +391,7 @@ td:nth-child(n+5), th:nth-child(n+5){
 
 /* Responsive */
 @media (max-width: 768px){
-  .container{ padding: 16px 12px 40px; }
+  .container{ padding: 0px; }
   .topbar{ flex-direction: column; gap: 12px; text-align:center; padding: 16px; }
   nav{ padding: 12px; gap: 4px; }
   nav a{ padding: 6px 12px; font-size: .8rem; }

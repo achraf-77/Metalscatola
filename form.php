@@ -3,16 +3,18 @@ require __DIR__ . "/cnx.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $sql = "INSERT INTO appro (ref, description, format, client, stock_pf, stock_fb, arrivage, cde_italie)
-            VALUES (:ref, :description, :format, :client, :stock_pf, :stock_fb, :arrivage, :cde_italie)
-            ON DUPLICATE KEY UPDATE
-              description=VALUES(description),
-              format=VALUES(format),
-              client=VALUES(client),
-              stock_pf=VALUES(stock_pf),
-              stock_fb=VALUES(stock_fb),
-              arrivage=VALUES(arrivage),
-              cde_italie=VALUES(cde_italie)";
+    $sql = "INSERT INTO appro (ref, description, format, client, stock_pf, stock_fb, stock, arrivage, cde_italie, couverture)
+        VALUES (:ref, :description, :format, :client, :stock_pf, :stock_fb, :stock, :arrivage, :cde_italie, :couverture)
+        ON DUPLICATE KEY UPDATE
+          description=VALUES(description),
+          format=VALUES(format),
+          client=VALUES(client),
+          stock_pf=VALUES(stock_pf),
+          stock_fb=VALUES(stock_fb),
+          stock=VALUES(stock),
+          arrivage=VALUES(arrivage),
+          cde_italie=VALUES(cde_italie),
+          couverture=VALUES(couverture)";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute([
@@ -22,8 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ":client" => trim($_POST["client"] ?? ""),
         ":stock_pf" => (int)($_POST["stock_pf"] ?? 0),
         ":stock_fb" => (int)($_POST["stock_fb"] ?? 0),
+        ":stock" => (int)($_POST["stock"] ?? 0),
         ":arrivage" => (int)($_POST["arrivage"] ?? 0),
         ":cde_italie" => (int)($_POST["cde_italie"] ?? 0),
+        ":couverture" => (int)($_POST["couverture"] ?? 0),
     ]);
 
     //  par Redirection format
@@ -59,79 +63,84 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <img src="assets/logo.png" alt="Metalscatola Afrique" class="logo-img">
             </div>
             <div class="actions">
-                <a class="btn primary" href="form.php">+ Ajouter</a>
+                <a class="btn primary" href="table_autres.php">Voir le tableau</a>
+                <a class="btn primary" href="livraison.php">livraison</a>
                 <a class="btn primary" href="import_excel.php">Importer Excel</a>
                 <a class="btn primary" href="table_last.php">Dernier Excel</a>
                 <a class="btn primary" href="historique.php">Historique</a>
+                <button class="btn green" type="submit" form="approForm">Enregistrer</button>
             </div>
+
         </div>
 
-        <div class="actions">
-            <a class="btn primary" href="table_autres.php">Voir le tableau</a>
-            <button class="btn green" type="submit" form="approForm">Enregistrer</button>
+        <div class="card">
+            <h2>Ajouter / Modifier un produit</h2>
+
+            <form method="post" id="approForm">
+                <div class="form-grid">
+
+                    <div>
+                        <label>Référence (REF)</label>
+                        <input name="ref" required placeholder="Ex: D109-007">
+                    </div>
+
+                    <div>
+                        <label>Client</label>
+                        <input name="client" placeholder="Nom du client">
+                    </div>
+
+                    <div>
+                        <label>Description</label>
+                        <input name="description" placeholder="Description du produit">
+                    </div>
+
+                    <div>
+                        <label>Format</label>
+                        <input name="format" id="format" placeholder="Ex: D305x335 VI/IMP">
+                    </div>
+
+                    <div>
+                        <label>Stock PF</label>
+                        <input type="number" name="stock_pf" id="stock_pf" value="0">
+                    </div>
+
+                    <div>
+                        <label>Stock FB</label>
+                        <input type="number" name="stock_fb" id="stock_fb" value="0">
+                    </div>
+
+                    <div>
+                        <label>Stock</label>
+                        <input type="number" name="stock" value="0">
+                    </div>
+
+                    <div>
+                        <label>Arrivage</label>
+                        <input type="number" name="arrivage" id="arrivage" value="0">
+                    </div>
+
+                    <div>
+                        <label>Cde Italie</label>
+                        <input type="number" name="cde_italie" id="cde_italie" value="0">
+                    </div>
+
+                    <div>
+                        <label>Couverture</label>
+                        <input type="number" name="couverture" value="0">
+                    </div>
+
+
+                </div>
+
+                <hr>
+
+                <div class="form-actions">
+                    <a class="btn primary" href="table_autres.php">Retour</a>
+                    <button class="btn green" type="submit">Enregistrer</button>
+                </div>
+            </form>
+
         </div>
-    </div>
-
-    <div class="card">
-        <h2>Ajouter / Modifier un produit</h2>
-
-        <form method="post" id="approForm">
-            <div class="form-grid">
-
-                <div>
-                    <label>Référence (REF)</label>
-                    <input name="ref" required placeholder="Ex: D109-007">
-                </div>
-
-                <div>
-                    <label>Client</label>
-                    <input name="client" placeholder="Nom du client">
-                </div>
-
-                <div>
-                    <label>Description</label>
-                    <input name="description" placeholder="Description du produit">
-                </div>
-
-                <div>
-                    <label>Format</label>
-                    <input name="format" id="format" placeholder="Ex: D305x335 VI/IMP">
-                </div>
-
-                <div>
-                    <label>Stock PF</label>
-                    <input type="number" name="stock_pf" id="stock_pf" value="0">
-                </div>
-
-                <div>
-                    <label>Stock FB</label>
-                    <input type="number" name="stock_fb" id="stock_fb" value="0">
-                </div>
-
-                <div>
-                    <label>Arrivage</label>
-                    <input type="number" name="arrivage" id="arrivage" value="0">
-                </div>
-
-                <div>
-                    <label>Cde Italie</label>
-                    <input type="number" name="cde_italie" id="cde_italie" value="0">
-                </div>
-
-            </div>
-
-            <hr>
-
-            <p><b>Stock:</b> <span id="stock_calc">0</span></p>
-            <p><b>Couverture:</b> <span id="couv_calc">0</span></p>
-
-            <div class="form-actions">
-                <a class="btn primary" href="table_autres.php">Retour</a>
-                <button class="btn green" type="submit">Enregistrer</button>
-            </div>
-        </form>
-
-    </div>
     </div>
 
     <script>
@@ -140,23 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             return isNaN(v) ? 0 : v;
         }
 
-        function recalc() {
-            const pf = n(document.getElementById('stock_pf').value);
-            const fb = n(document.getElementById('stock_fb').value);
-            const arr = n(document.getElementById('arrivage').value);
-            const cde = n(document.getElementById('cde_italie').value);
-
-            const stock = pf + fb;
-            const couv = arr + stock + cde;
-
-            document.getElementById('stock_calc').textContent = stock;
-            document.getElementById('couv_calc').textContent = couv;
-        }
-
-        ['stock_pf', 'stock_fb', 'arrivage', 'cde_italie'].forEach(id => {
-            document.getElementById(id).addEventListener('input', recalc);
-        });
-        recalc();
+    
     </script>
 
 </body>

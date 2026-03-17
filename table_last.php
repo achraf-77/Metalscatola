@@ -2,13 +2,21 @@
 require __DIR__ . "/cnx.php";
 
 $stmt = $conn->query("
-    SELECT * FROM appro_historique
-    WHERE date_import = (SELECT MAX(date_import) FROM appro_historique)
+SELECT *
+FROM appro_historique
+WHERE date_import >= (
+    SELECT MAX(date_import) FROM appro_historique
+) - INTERVAL 10 SECOND;
 ");
 
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
+<head>
+    <meta charset="UTF-8">
+    <title>Metalscatola</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 <div class="container wide">
 
         <div class="topbar">
@@ -18,14 +26,14 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="actions">
                 <a class="btn primary" href="form.php">+ Ajouter</a>
                 <a class="btn primary" href="import_excel.php">Importer Excel</a>
-                <a class="btn primary" href="table_last.php">Dernier Excel</a>
                 <a class="btn primary" href="historique.php">Historique</a>
             </div>
         </div>
 
 
-<div class="table-wrapper container wide">
+<div class="container wide">
     <h2>Dernier Excel importé</h2>
+    <div class="table-wrapper">
     <table>
         <thead>
             <tr>
@@ -52,3 +60,4 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </tbody>
     </table>
 </div>
+</body>

@@ -12,8 +12,7 @@ if($_SERVER["REQUEST_METHOD"] !== "POST"){
 
 require __DIR__ . "/cnx.php";
 
-$rawInput = file_get_contents("php://input");
-$data = json_decode($rawInput,true);
+$data = json_decode(file_get_contents("php://input"), true);
 
 if(!$data || !isset($data["rows"])){
     echo json_encode(["success"=>false,"message"=>"Données invalides"]);
@@ -22,13 +21,12 @@ if(!$data || !isset($data["rows"])){
 
 $rows = $data["rows"];
 
-$sql = "
+/* APPRO */
+$sqlAppro = "
 INSERT INTO appro
 (ref, description, format, client, stock_pf, stock_fb, stock, arrivage, cde_italie, couverture)
-
 VALUES
 (:ref, :description, :format, :client, :stock_pf, :stock_fb, :stock, :arrivage, :cde_italie, :couverture)
-
 ON DUPLICATE KEY UPDATE
 description=VALUES(description),
 format=VALUES(format),
@@ -41,7 +39,17 @@ cde_italie=VALUES(cde_italie),
 couverture=VALUES(couverture)
 ";
 
-$stmt = $conn->prepare($sql);
+$stmtAppro = $conn->prepare($sqlAppro);
+
+/* HISTORIQUE */
+$sqlHist = "
+INSERT INTO appro_historique
+(ref, description, format, client, stock_pf, stock_fb, stock, arrivage, cde_italie, couverture, date_import)
+VALUES
+(:ref, :description, :format, :client, :stock_pf, :stock_fb, :stock, :arrivage, :cde_italie, :couverture, NOW())
+";
+
+$stmtHist = $conn->prepare($sqlHist);
 
 $imported = 0;
 $errors = 0;
@@ -64,7 +72,7 @@ foreach($rows as $row){
 
     try{
 
-        $stmt->execute([
+        $params = [
             ":ref"=>$ref,
             ":description"=>trim($row["description"] ?? ""),
             ":format"=>trim($row["format"] ?? ""),
@@ -75,7 +83,10 @@ foreach($rows as $row){
             ":arrivage"=>$arrivage,
             ":cde_italie"=>$cde_italie,
             ":couverture"=>$couverture
-        ]);
+        ];
+
+        $stmtAppro->execute($params);
+        $stmtHist->execute($params);
 
         $imported++;
 

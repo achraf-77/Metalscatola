@@ -22,7 +22,10 @@ require __DIR__ . "/cnx.php";
             margin-right: auto;
             transition: box-shadow .3s var(--ease);
         }
-        .import-card:hover { box-shadow: var(--shadow-md); }
+
+        .import-card:hover {
+            box-shadow: var(--shadow-md);
+        }
 
         .import-card h2 {
             font-size: 1.4rem;
@@ -52,12 +55,14 @@ require __DIR__ . "/cnx.php";
             background: var(--gray-50);
             position: relative;
         }
+
         .drop-zone:hover,
         .drop-zone.dragover {
             border-color: var(--brand-red-1);
             background: rgba(224, 49, 49, .04);
             transform: scale(1.01);
         }
+
         .drop-zone.dragover {
             box-shadow: 0 0 0 4px rgba(224, 49, 49, .12);
         }
@@ -74,6 +79,7 @@ require __DIR__ . "/cnx.php";
             color: var(--text-secondary);
             font-weight: 500;
         }
+
         .drop-zone-text span {
             color: var(--brand-red-1);
             font-weight: 700;
@@ -102,24 +108,31 @@ require __DIR__ . "/cnx.php";
             border: 1px solid rgba(224, 49, 49, .15);
             border-radius: var(--radius-md);
         }
-        .file-info.show { display: flex; }
+
+        .file-info.show {
+            display: flex;
+        }
 
         .file-info-icon {
             font-size: 1.8rem;
             flex-shrink: 0;
         }
+
         .file-info-details {
             flex: 1;
         }
+
         .file-info-name {
             font-weight: 700;
             color: var(--text-primary);
             font-size: .95rem;
         }
+
         .file-info-size {
             font-size: .8rem;
             color: var(--text-muted);
         }
+
         .file-info-remove {
             background: none;
             border: none;
@@ -130,6 +143,7 @@ require __DIR__ . "/cnx.php";
             border-radius: 4px;
             transition: all .2s;
         }
+
         .file-info-remove:hover {
             background: rgba(224, 49, 49, .1);
             color: var(--brand-red-1);
@@ -140,7 +154,10 @@ require __DIR__ . "/cnx.php";
             display: none;
             margin-top: 28px;
         }
-        .mapping-section.show { display: block; }
+
+        .mapping-section.show {
+            display: block;
+        }
 
         .mapping-title {
             font-size: 1.05rem;
@@ -166,6 +183,7 @@ require __DIR__ . "/cnx.php";
             padding: 12px;
             transition: all .2s var(--ease);
         }
+
         .mapping-item:hover {
             border-color: var(--gray-400);
             background: #fff;
@@ -186,7 +204,10 @@ require __DIR__ . "/cnx.php";
             display: none;
             margin-top: 24px;
         }
-        .preview-section.show { display: block; }
+
+        .preview-section.show {
+            display: block;
+        }
 
         .preview-header {
             display: flex;
@@ -238,7 +259,10 @@ require __DIR__ . "/cnx.php";
             display: none;
             margin-top: 24px;
         }
-        .import-progress.show { display: block; }
+
+        .import-progress.show {
+            display: block;
+        }
 
         .progress-bar-wrap {
             height: 8px;
@@ -247,6 +271,7 @@ require __DIR__ . "/cnx.php";
             overflow: hidden;
             margin-bottom: 12px;
         }
+
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--brand-red-1), var(--brand-red-2));
@@ -271,20 +296,27 @@ require __DIR__ . "/cnx.php";
             font-size: .92rem;
             font-weight: 500;
         }
-        .import-result.show { display: block; }
+
+        .import-result.show {
+            display: block;
+        }
 
         .import-result.success {
             background: linear-gradient(135deg, rgba(34, 139, 34, .08), rgba(34, 139, 34, .03));
             border: 1px solid rgba(34, 139, 34, .2);
             color: #1a7a1a;
         }
+
         .import-result.error {
             background: linear-gradient(135deg, rgba(224, 49, 49, .08), rgba(224, 49, 49, .03));
             border: 1px solid rgba(224, 49, 49, .2);
             color: var(--brand-red-2);
         }
 
-        .result-icon { font-size: 1.2rem; margin-right: 8px; }
+        .result-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
 
         .result-details {
             margin-top: 10px;
@@ -300,6 +332,7 @@ require __DIR__ . "/cnx.php";
             border: 1px solid var(--gray-200);
             border-radius: var(--radius-md);
         }
+
         .format-info-title {
             font-size: .9rem;
             font-weight: 700;
@@ -309,11 +342,13 @@ require __DIR__ . "/cnx.php";
             align-items: center;
             gap: 6px;
         }
+
         .format-cols {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
         }
+
         .format-col-tag {
             background: linear-gradient(135deg, var(--brand-gray-1), var(--brand-gray-2));
             color: #fff;
@@ -324,10 +359,21 @@ require __DIR__ . "/cnx.php";
         }
 
         @media (max-width: 768px) {
-            .import-card { padding: 24px 16px; }
-            .drop-zone { padding: 30px 16px; }
-            .mapping-grid { grid-template-columns: 1fr; }
-            .import-actions { flex-direction: column; }
+            .import-card {
+                padding: 24px 16px;
+            }
+
+            .drop-zone {
+                padding: 30px 16px;
+            }
+
+            .mapping-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .import-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -342,6 +388,9 @@ require __DIR__ . "/cnx.php";
             <a href="table_d305.php">D305</a>
             <a href="table_autres.php">Autres</a>
             <a href="import_excel.php" class="active">📥 Importer Excel</a>
+            <a class="btn primary" href="table_last.php">Dernier Excel</a>
+            <a class="btn primary" href="livraison.php">livraison</a>
+            <a class="btn primary" href="historique.php">Historique</a>
         </nav>
 
         <div class="import-card">
@@ -436,28 +485,67 @@ require __DIR__ . "/cnx.php";
 
     <script>
         // ── State ──
-        let parsedData = [];      // Array of row objects from Excel
-        let excelHeaders = [];    // Column headers from Excel
-        const dbColumns = [
-            { key: 'ref',         label: 'REF (Référence)',  required: true },
-            { key: 'description', label: 'DESCRIPTION',      required: false },
-            { key: 'format',      label: 'FORMAT',           required: true },
-            { key: 'client',      label: 'CLIENT',           required: false },
-            { key: 'stock_pf',    label: 'STOCK PF',         required: false },
-            { key: 'stock_fb',    label: 'STOCK FB',         required: false },
-            { key: 'stock',       label: 'STOCK',            required: false },
-            { key: 'arrivage',    label: 'ARRIVAGE',         required: false },
-            { key: 'cde_italie',  label: 'CDE ITALIE',      required: false },
-            { key: 'couverture',  label: 'COUVERTURE',       required: false }
+        let parsedData = []; // Array of row objects from Excel
+        let excelHeaders = []; // Column headers from Excel
+        const dbColumns = [{
+                key: 'ref',
+                label: 'REF (Référence)',
+                required: true
+            },
+            {
+                key: 'description',
+                label: 'DESCRIPTION',
+                required: false
+            },
+            {
+                key: 'format',
+                label: 'FORMAT',
+                required: true
+            },
+            {
+                key: 'client',
+                label: 'CLIENT',
+                required: false
+            },
+            {
+                key: 'stock_pf',
+                label: 'STOCK PF',
+                required: false
+            },
+            {
+                key: 'stock_fb',
+                label: 'STOCK FB',
+                required: false
+            },
+            {
+                key: 'stock',
+                label: 'STOCK',
+                required: false
+            },
+            {
+                key: 'arrivage',
+                label: 'ARRIVAGE',
+                required: false
+            },
+            {
+                key: 'cde_italie',
+                label: 'CDE ITALIE',
+                required: false
+            },
+            {
+                key: 'couverture',
+                label: 'COUVERTURE',
+                required: false
+            }
         ];
 
         // ── DOM Elements ──
-        const dropZone    = document.getElementById('dropZone');
-        const fileInput   = document.getElementById('fileInput');
-        const fileInfo    = document.getElementById('fileInfo');
-        const fileName    = document.getElementById('fileName');
-        const fileSize    = document.getElementById('fileSize');
-        const fileRemove  = document.getElementById('fileRemove');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileRemove = document.getElementById('fileRemove');
         const mappingSection = document.getElementById('mappingSection');
         const mappingGrid = document.getElementById('mappingGrid');
         const previewSection = document.getElementById('previewSection');
@@ -518,9 +606,13 @@ require __DIR__ . "/cnx.php";
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    const workbook = XLSX.read(data, {
+                        type: 'array'
+                    });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+                        defval: ''
+                    });
 
                     if (!jsonData.length) {
                         alert('Le fichier est vide ou ne contient pas de données valides.');
@@ -594,16 +686,16 @@ require __DIR__ . "/cnx.php";
 
             // Common mappings
             const mappings = {
-                'ref':         ['ref', 'reference', 'référence', 'réf', 'code'],
+                'ref': ['ref', 'reference', 'référence', 'réf', 'code'],
                 'description': ['description', 'desc', 'désignation', 'designation', 'libelle', 'libellé', 'nom'],
-                'format':      ['format', 'fmt', 'taille', 'dimension'],
-                'client':      ['client', 'clt', 'customer', 'acheteur'],
-                'stock_pf':    ['stockpf', 'pf', 'produitfini', 'produitsfinis'],
-                'stock_fb':    ['stockfb', 'fb', 'fabrication'],
-                'stock':       ['stock', 'totalstock'],
-                'arrivage':    ['arrivage', 'arr', 'reception', 'réception'],
-                'cde_italie':  ['cdeitalie', 'cdeit', 'commandeitalie', 'italie', 'cde'],
-                'couverture':  ['couverture', 'couv']
+                'format': ['format', 'fmt', 'taille', 'dimension'],
+                'client': ['client', 'clt', 'customer', 'acheteur'],
+                'stock_pf': ['stockpf', 'pf', 'produitfini', 'produitsfinis'],
+                'stock_fb': ['stockfb', 'stock fb', 'fb', 'fabrication', 'stockfini', 'stock_fab'],
+                'stock': ['stock', 'totalstock'],
+                'arrivage': ['arrivage', 'arr', 'reception', 'réception'],
+                'cde_italie': ['cdeitalie', 'cdeit', 'commandeitalie', 'italie', 'cde'],
+                'couverture': ['couverture', 'couv']
             };
 
             if (mappings[dbKey]) {
@@ -680,7 +772,8 @@ require __DIR__ . "/cnx.php";
                         let val = row[mapping[col.key]] ?? '';
                         // Convert numeric fields to numbers
                         if (['stock_pf', 'stock_fb', 'stock', 'arrivage', 'cde_italie', 'couverture'].includes(col.key)) {
-                            val = parseInt(val, 10) || 0;
+                            val = val === '' ? 0 : parseInt(val, 10);
+                            if (isNaN(val)) val = 0;
                         } else {
                             val = String(val).trim();
                         }
@@ -722,13 +815,17 @@ require __DIR__ . "/cnx.php";
                 try {
                     const response = await fetch('import_process.php', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ rows: batch })
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            rows: batch
+                        })
                     });
 
                     // Read response as text first to handle PHP errors
                     const responseText = await response.text();
-                    
+
                     let result;
                     try {
                         result = JSON.parse(responseText);
@@ -777,12 +874,12 @@ require __DIR__ . "/cnx.php";
                         '<span class="result-icon">✅</span>' +
                         '<strong>' + imported + ' ligne(s) importée(s) avec succès !</strong>' +
                         '<div class="result-details">' +
-                            'Les données ont été ajoutées / mises à jour dans la base de données.' +
-                            '<br><br>' +
-                            '<a href="table_d109.php" class="btn primary" style="margin-right:8px;">Voir D109</a>' +
-                            '<a href="table_d180.php" class="btn primary" style="margin-right:8px;">Voir D180</a>' +
-                            '<a href="table_d305.php" class="btn primary" style="margin-right:8px;">Voir D305</a>' +
-                            '<a href="table_autres.php" class="btn primary">Voir Autres</a>' +
+                        'Les données ont été ajoutées / mises à jour dans la base de données.' +
+                        '<br><br>' +
+                        '<a href="table_d109.php" class="btn primary" style="margin-right:8px;">Voir D109</a>' +
+                        '<a href="table_d180.php" class="btn primary" style="margin-right:8px;">Voir D180</a>' +
+                        '<a href="table_d305.php" class="btn primary" style="margin-right:8px;">Voir D305</a>' +
+                        '<a href="table_autres.php" class="btn primary">Voir Autres</a>' +
                         '</div>';
                 } else {
                     importResult.className = 'import-result show ' + (imported > 0 ? 'success' : 'error');
@@ -790,11 +887,11 @@ require __DIR__ . "/cnx.php";
                         '<span class="result-icon">' + (imported > 0 ? '⚠️' : '❌') + '</span>' +
                         '<strong>' + imported + ' importée(s), ' + errors + ' erreur(s)</strong>' +
                         '<div class="result-details">' +
-                            errorMessages.slice(0, 5).join('<br>') +
-                            (errorMessages.length > 5 ? '<br>... et ' + (errorMessages.length - 5) + ' autre(s) erreur(s)' : '') +
-                            '<br><br>' +
-                            '<a href="table_autres.php" class="btn primary">Voir le tableau</a>' +
-                            '<button class="btn green" onclick="resetAll()" style="margin-left:8px;">Réessayer</button>' +
+                        errorMessages.slice(0, 5).join('<br>') +
+                        (errorMessages.length > 5 ? '<br>... et ' + (errorMessages.length - 5) + ' autre(s) erreur(s)' : '') +
+                        '<br><br>' +
+                        '<a href="table_autres.php" class="btn primary">Voir le tableau</a>' +
+                        '<button class="btn green" onclick="resetAll()" style="margin-left:8px;">Réessayer</button>' +
                         '</div>';
                 }
             }, 800);
@@ -829,4 +926,5 @@ require __DIR__ . "/cnx.php";
         }
     </script>
 </body>
+
 </html>
