@@ -28,7 +28,8 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div class="actions">
-            <a class="btn primary" href="livraison.php">← Retour</a>
+            <a class="btn primary" href="livraison_search.php">← Livraison</a>
+            <a class="btn primary" href="livraison.php">📦 Commandes en attente</a>
         </div>
     </div>
 
