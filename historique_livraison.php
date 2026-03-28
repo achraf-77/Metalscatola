@@ -9,31 +9,30 @@ $stmt = $conn->query("
 
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Historique Livraison</title>
+    <title>Historique des Livraisons — Metalscatola</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="container wide">
 
-    <div class="topbar">
-        <div class="brand">
-            <img src="assets/logo.png" class="logo-img">
-        </div>
+    <nav>
+        <a href="form.php">+ Ajouter</a>
+        <a href="table_d109.php">D109</a>
+        <a href="table_d180.php">D180</a>
+        <a href="table_d305.php">D305</a>
+        <a href="table_autres.php">Autres</a>
+        <a href="import_excel.php" class="btn primary">📥 Importer Excel</a>
+        <a href="livraison_search.php" class="btn primary">Livraison</a>
+        <a href="livraison.php" class="btn primary">📦 Commandes</a>
+        <a href="historique_livraison.php" class="btn primary active">Hist. livraison</a>
+    </nav>
 
-        <div class="actions">
-            <a class="btn primary" href="livraison_search.php">← Livraison</a>
-            <a class="btn primary" href="livraison.php">📦 Commandes en attente</a>
-        </div>
-    </div>
-
-    <h2>Historique des Livraisons</h2>
+    <h2>📦 Historique des Livraisons</h2>
 
     <div class="table-wrapper">
         <table>
@@ -44,17 +43,19 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>Date</th>
                 </tr>
             </thead>
-
             <tbody>
-                <?php foreach ($rows as $r): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($r['ref']) ?></td>
-                        <td><?= (int)$r['livraison'] ?></td>
-                        <td><?= $r['date_livraison'] ?></td>
-                    </tr>
-                <?php endforeach; ?>
+                <?php if (empty($rows)): ?>
+                    <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:30px;">Aucune livraison enregistrée.</td></tr>
+                <?php else: ?>
+                    <?php foreach ($rows as $r): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($r['ref']) ?></td>
+                            <td><?= (int)$r['livraison'] ?></td>
+                            <td><?= htmlspecialchars((string)$r['date_livraison']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
-
         </table>
     </div>
 

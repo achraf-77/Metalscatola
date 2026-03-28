@@ -25,29 +25,40 @@ if (!$product) {
     exit;
 }
 
+/* ── 2b. Check if this REF already has a pending commande ─── */
+$chk = $conn->prepare("SELECT id FROM commandes WHERE ref = :ref LIMIT 1");
+$chk->execute([':ref' => $ref]);
+$existingCommande = $chk->fetch(PDO::FETCH_ASSOC);
+
 $error   = '';
 $success = false;
 
 /* ── 3. Handle form submission ────────────────────────────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $commande      = (int)($_POST['commande'] ?? 0);
+    $commande       = (int)($_POST['commande'] ?? 0);
     $date_livraison = trim($_POST['date_livraison'] ?? '');
 
-    if ($commande <= 0) {
+    if ($existingCommande) {
+        $error = "⚠ Cette référence est déjà dans les commandes en attente de livraison.";
+    } elseif ($commande <= 0) {
         $error = "La quantité commandée doit être supérieure à 0.";
     } elseif ($date_livraison === '') {
         $error = "Veuillez saisir une date de livraison.";
     } else {
+        // Get max sort_order to place new commande at end
+        $maxOrd = (int)$conn->query("SELECT COALESCE(MAX(sort_order),0) FROM commandes")->fetchColumn();
+
         $insert = $conn->prepare("
-            INSERT INTO commandes (ref, stock_pf, stock, commande, date_livraison)
-            VALUES (:ref, :stock_pf, :stock, :commande, :date_livraison)
+            INSERT INTO commandes (ref, stock_pf, stock, commande, date_livraison, sort_order)
+            VALUES (:ref, :stock_pf, :stock, :commande, :date_livraison, :sort_order)
         ");
         $insert->execute([
-            ':ref'           => $ref,
-            ':stock_pf'      => (int)$product['stock_pf'],
-            ':stock'         => (int)$product['stock'],
-            ':commande'      => $commande,
-            ':date_livraison'=> $date_livraison,
+            ':ref'            => $ref,
+            ':stock_pf'       => (int)$product['stock_pf'],
+            ':stock'          => (int)$product['stock'],
+            ':commande'       => $commande,
+            ':date_livraison' => $date_livraison,
+            ':sort_order'     => $maxOrd + 1,
         ]);
 
         header("Location: livraison.php?success=1");
@@ -110,6 +121,16 @@ $today = date('Y-m-d');
             color: #c92a2a;
             border-radius: var(--radius-sm);
             padding: 12px 16px;
+            font-size: .9rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .alert-warning {
+            background: #fff9db;
+            border: 1.5px solid #ffe066;
+            color: #856404;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
             font-size: .9rem;
             font-weight: 600;
             margin-bottom: 16px;
@@ -185,6 +206,15 @@ $today = date('Y-m-d');
         <div class="card">
             <h2>Étape 2 — Créer une commande</h2>
 
+            <?php if ($existingCommande): ?>
+                <div class="alert-warning">
+                    ⚠ Cette référence est déjà dans les <strong>commandes en attente de livraison</strong>.
+                    Vous ne pouvez pas créer une deuxième commande pour la même référence.
+                    <br><br>
+                    <a class="btn primary" href="livraison.php">→ Voir les commandes en attente</a>
+                </div>
+            <?php else: ?>
+
             <?php if ($error): ?>
                 <div class="alert-error">⚠ <?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
@@ -219,7 +249,6 @@ $today = date('Y-m-d');
                             name="commande"
                             id="commande"
                             min="1"
-                            max="<?= (int)$product['stock_pf'] ?>"
                             placeholder="Ex: 500"
                             value="<?= (int)($_POST['commande'] ?? 0) ?: '' ?>"
                             required
@@ -246,6 +275,8 @@ $today = date('Y-m-d');
                     <button class="btn green" type="submit">✔ Enregistrer la commande</button>
                 </div>
             </form>
+
+            <?php endif; ?>
 
         </div>
     </div>

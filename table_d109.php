@@ -1,3 +1,3 @@
 <?php
 require __DIR__ . "/table_base.php";
-render_table_page($conn, "Formats D109", "WHERE UPPER(TRIM(format)) LIKE 'D109%';");
+render_table_page($conn, "Formats D109", "WHERE UPPER(TRIM(format)) LIKE 'D109%'");

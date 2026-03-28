@@ -4,15 +4,58 @@ require __DIR__ . "/cnx.php";
 $error   = '';
 $success = '';
 
-/* ───────────────────────────────────────────────────────────
-   POST — process a livraison
-─────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   POST — handle livraison OR reorder
+═══════════════════════════════════════════════════════════ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    $action = $_POST['action'] ?? 'livrer';
+
+    /* ─── Reorder: move a commande up or down ─────────────── */
+    if ($action === 'move_up' || $action === 'move_down') {
+        $id = (int)($_POST['commande_id'] ?? 0);
+
+        // Fetch current row
+        $cur = $conn->prepare("SELECT id, sort_order FROM commandes WHERE id = :id");
+        $cur->execute([':id' => $id]);
+        $curRow = $cur->fetch(PDO::FETCH_ASSOC);
+
+        if ($curRow) {
+            if ($action === 'move_up') {
+                // Find the row immediately above (smaller sort_order)
+                $adj = $conn->prepare("
+                    SELECT id, sort_order FROM commandes
+                    WHERE sort_order < :so
+                    ORDER BY sort_order DESC LIMIT 1
+                ");
+            } else {
+                // Find the row immediately below (larger sort_order)
+                $adj = $conn->prepare("
+                    SELECT id, sort_order FROM commandes
+                    WHERE sort_order > :so
+                    ORDER BY sort_order ASC LIMIT 1
+                ");
+            }
+            $adj->execute([':so' => $curRow['sort_order']]);
+            $adjRow = $adj->fetch(PDO::FETCH_ASSOC);
+
+            if ($adjRow) {
+                // Swap sort_order values
+                $swap1 = $conn->prepare("UPDATE commandes SET sort_order = :so WHERE id = :id");
+                $swap1->execute([':so' => $adjRow['sort_order'], ':id' => $curRow['id']]);
+                $swap1->execute([':so' => $curRow['sort_order'], ':id' => $adjRow['id']]);
+            }
+        }
+
+        header("Location: livraison.php");
+        exit;
+    }
+
+    /* ─── Livraison ───────────────────────────────────────── */
     $commande_id = (int)($_POST['commande_id'] ?? 0);
     $livraison   = (int)($_POST['livraison']   ?? 0);
 
-    /* 1. Fetch the commande row */
+    // 1. Fetch the commande row
     $stmt = $conn->prepare("SELECT * FROM commandes WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $commande_id]);
     $cmd = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -21,11 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Commande introuvable (id={$commande_id}).";
     } elseif ($livraison <= 0) {
         $error = "La quantité livrée doit être supérieure à 0.";
-    } elseif ($livraison > (int)$cmd['stock_pf']) {
-        /* ── BLOCKED: livraison exceeds stock_pf ── */
-        $error = "⛔ Livraison impossible : la quantité saisie ({$livraison}) dépasse le stock PF disponible ({$cmd['stock_pf']}) pour la ref <strong>" . htmlspecialchars($cmd['ref']) . "</strong>.";
     } else {
-        /* 2. Fetch fresh stock from appro_historique */
+        // 2. Fetch FRESH stock from appro_historique
         $s = $conn->prepare("
             SELECT stock_pf, stock_fb, stock, arrivage, cde_italie
             FROM appro_historique
@@ -34,59 +74,112 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             LIMIT 1
         ");
         $s->execute([':ref' => $cmd['ref']]);
-        $row = $s->fetch(PDO::FETCH_ASSOC);
+        $freshRow = $s->fetch(PDO::FETCH_ASSOC);
 
-        if ($row) {
-            $new_stock_pf  = max(0, (int)$row['stock_pf'] - $livraison);
-            $new_stock     = max(0, (int)$row['stock']    - $livraison);
-            $new_couverture = $new_stock_pf + (int)$row['stock_fb'] + (int)$row['arrivage'] + (int)$row['cde_italie'];
+        if (!$freshRow) {
+            $error = "Impossible de trouver le stock actuel pour la ref <strong>"
+                   . htmlspecialchars($cmd['ref']) . "</strong>.";
+        } elseif ((int)$freshRow['stock_pf'] <= 0) {
+            $error = "⛔ Livraison impossible : le stock PF est actuellement à 0 pour la ref <strong>"
+                   . htmlspecialchars($cmd['ref']) . "</strong>.";
+        } elseif ($livraison > (int)$freshRow['stock_pf']) {
+            $error = "⛔ Livraison impossible : la quantité saisie ({$livraison}) dépasse "
+                   . "le stock PF actuel ({$freshRow['stock_pf']}) pour la ref <strong>"
+                   . htmlspecialchars($cmd['ref']) . "</strong>.";
+        } else {
+            // Delivered = what was entered (already validated <= stock_pf)
+            $remaining = (int)$cmd['commande'];
+            $delivered = $livraison;
 
-            /* 3. Update appro_historique (latest row only) */
-            $upd = $conn->prepare("
+            // 3. Calculate new stock values
+            $new_stock_pf  = max(0, (int)$freshRow['stock_pf'] - $delivered);
+            $new_stock     = max(0, (int)$freshRow['stock']    - $delivered);
+            $new_couverture = $new_stock_pf
+                            + (int)$freshRow['stock_fb']
+                            + (int)$freshRow['arrivage']
+                            + (int)$freshRow['cde_italie'];
+
+            // 4. Update appro_historique (latest row for this ref)
+            $updHist = $conn->prepare("
                 UPDATE appro_historique
-                SET stock_pf = :stock_pf,
-                    stock    = :stock,
+                SET stock_pf   = :stock_pf,
+                    stock      = :stock,
                     couverture = :couv
                 WHERE ref = :ref
                   AND date_import = (
                       SELECT MAX(date_import)
-                      FROM appro_historique
-                      WHERE ref = :ref
+                      FROM   appro_historique
+                      WHERE  ref = :ref2
                   )
             ");
-            $upd->execute([
+            $updHist->execute([
+                ':stock_pf' => $new_stock_pf,
+                ':stock'    => $new_stock,
+                ':couv'     => $new_couverture,
+                ':ref'      => $cmd['ref'],
+                ':ref2'     => $cmd['ref'],
+            ]);
+
+            // 5. Update the main appro table
+            $updAppro = $conn->prepare("
+                UPDATE appro
+                SET stock_pf   = :stock_pf,
+                    stock      = :stock,
+                    couverture = :couv
+                WHERE ref = :ref
+            ");
+            $updAppro->execute([
                 ':stock_pf' => $new_stock_pf,
                 ':stock'    => $new_stock,
                 ':couv'     => $new_couverture,
                 ':ref'      => $cmd['ref'],
             ]);
 
-            /* 4. Insert into livraison_historique */
+            // 6. Insert into livraison_historique
             $ins = $conn->prepare("
                 INSERT INTO livraison_historique (ref, livraison, date_livraison)
                 VALUES (:ref, :livraison, :date_liv)
             ");
             $ins->execute([
-                ':ref'      => $cmd['ref'],
-                ':livraison'=> $livraison,
-                ':date_liv' => date('Y-m-d'),
+                ':ref'       => $cmd['ref'],
+                ':livraison' => $delivered,
+                ':date_liv'  => date('Y-m-d'),
             ]);
+
+            // 7. Partial or full delivery?
+            $newRemaining = $remaining - $delivered;
+            if ($newRemaining <= 0) {
+                // Fully delivered → delete the commande
+                $del = $conn->prepare("DELETE FROM commandes WHERE id = :id");
+                $del->execute([':id' => $commande_id]);
+            } else {
+                // Partial → update commande qty and also update stock snapshot
+                $upd = $conn->prepare("
+                    UPDATE commandes
+                    SET commande  = :commande,
+                        stock_pf  = :stock_pf,
+                        stock     = :stock
+                    WHERE id = :id
+                ");
+                $upd->execute([
+                    ':commande' => $newRemaining,
+                    ':stock_pf' => $new_stock_pf,
+                    ':stock'    => $new_stock,
+                    ':id'       => $commande_id,
+                ]);
+            }
+
+            header("Location: livraison.php?success=1");
+            exit;
         }
-
-        /* 5. Delete the commande (fully delivered) */
-        $del = $conn->prepare("DELETE FROM commandes WHERE id = :id");
-        $del->execute([':id' => $commande_id]);
-
-        header("Location: livraison.php?success=1");
-        exit;
     }
 }
 
-/* ───────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    GET — list all pending commandes
-─────────────────────────────────────────────────────────── */
+═══════════════════════════════════════════════════════════ */
 $commandes = $conn->query("
-    SELECT * FROM commandes ORDER BY date_livraison ASC, created_at ASC
+    SELECT * FROM commandes ORDER BY sort_order ASC, created_at ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 $successMsg = '';
@@ -98,7 +191,7 @@ if (isset($_GET['success'])) {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Livraison — Commandes en attente</title>
+    <title>Commandes en attente de livraison — Metalscatola</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .alert-error {
@@ -124,6 +217,11 @@ if (isset($_GET['success'])) {
             font-weight: 600;
             margin-bottom: 18px;
         }
+        .livraison-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
         .livraison-input {
             width: 90px !important;
             text-align: center;
@@ -148,14 +246,8 @@ if (isset($_GET['success'])) {
             background: var(--gray-100);
             color: var(--gray-700);
         }
-        .date-badge.urgent {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .date-badge.overdue {
-            background: #fff5f5;
-            color: #c92a2a;
-        }
+        .date-badge.urgent  { background: #fff3cd; color: #856404; }
+        .date-badge.overdue { background: #fff5f5; color: #c92a2a; }
         .page-header {
             display: flex;
             align-items: center;
@@ -175,6 +267,36 @@ if (isset($_GET['success'])) {
             padding: 4px 14px;
             border-radius: 20px;
         }
+        /* Reorder arrow buttons */
+        .reorder-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: center;
+        }
+        .btn-arrow {
+            background: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            width: 26px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: .8rem;
+            line-height: 1;
+            padding: 0;
+            transition: background 0.15s;
+        }
+        .btn-arrow:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-400);
+        }
+        .btn-arrow:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -183,12 +305,16 @@ if (isset($_GET['success'])) {
 
     <nav>
         <a href="form.php">+ Ajouter</a>
-        <a href="import_excel.php">Importer Excel</a>
-        <a href="table_last.php">Dernier Excel</a>
-        <a href="historique.php">Historique</a>
-        <a href="historique_livraison.php">Historique livraison</a>
-        <a href="livraison.php" class="active">Commandes en attente</a>
-        <a href="livraison_search.php">Livraison</a>
+        <a href="table_d109.php">D109</a>
+        <a href="table_d180.php">D180</a>
+        <a href="table_d305.php">D305</a>
+        <a href="table_autres.php">Autres</a>
+        <a href="import_excel.php" class="btn primary">📥 Importer Excel</a>
+        <a href="table_last.php" class="btn primary">Dernier Excel</a>
+        <a href="livraison_search.php" class="btn primary">Livraison</a>
+        <a href="historique.php" class="btn primary">Historique</a>
+        <a href="historique_livraison.php" class="btn primary">Hist. livraison</a>
+        <a href="livraison.php" class="btn primary active">📦 Commandes</a>
     </nav>
 
     <div class="page-header">
@@ -220,27 +346,45 @@ if (isset($_GET['success'])) {
             <table>
                 <thead>
                     <tr>
+                        <th style="width:36px;"></th><!-- reorder col -->
                         <th>#</th>
                         <th>REF</th>
                         <th>Stock PF</th>
                         <th>Stock Total</th>
                         <th>Commandé</th>
                         <th>Date livraison</th>
-                        <th>Quantité livrée</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    $today = date('Y-m-d');
+                    $today       = date('Y-m-d');
                     $in_two_days = date('Y-m-d', strtotime('+2 days'));
-                    foreach ($commandes as $c):
-                        $d = $c['date_livraison'];
+                    $total       = count($commandes);
+                    foreach ($commandes as $i => $c):
+                        $d         = $c['date_livraison'];
                         $dateClass = '';
                         if ($d < $today)            $dateClass = 'overdue';
                         elseif ($d <= $in_two_days) $dateClass = 'urgent';
+                        $isFirst = ($i === 0);
+                        $isLast  = ($i === $total - 1);
                     ?>
                         <tr>
+                            <!-- Reorder arrows -->
+                            <td style="padding:4px 6px;">
+                                <div class="reorder-btns">
+                                    <form method="post" style="margin:0;">
+                                        <input type="hidden" name="action" value="move_up">
+                                        <input type="hidden" name="commande_id" value="<?= (int)$c['id'] ?>">
+                                        <button class="btn-arrow" type="submit" title="Monter" <?= $isFirst ? 'disabled' : '' ?>>▲</button>
+                                    </form>
+                                    <form method="post" style="margin:0;">
+                                        <input type="hidden" name="action" value="move_down">
+                                        <input type="hidden" name="commande_id" value="<?= (int)$c['id'] ?>">
+                                        <button class="btn-arrow" type="submit" title="Descendre" <?= $isLast ? 'disabled' : '' ?>>▼</button>
+                                    </form>
+                                </div>
+                            </td>
                             <td style="color:var(--text-muted);font-weight:400;"><?= (int)$c['id'] ?></td>
                             <td><?= htmlspecialchars($c['ref']) ?></td>
                             <td style="text-align:center;font-weight:700;"><?= number_format((int)$c['stock_pf'], 0, ',', ' ') ?></td>
@@ -250,7 +394,8 @@ if (isset($_GET['success'])) {
                                 <span class="date-badge <?= $dateClass ?>"><?= htmlspecialchars($d) ?></span>
                             </td>
                             <td>
-                                <form method="post" style="display:flex;gap:8px;align-items:center;">
+                                <form method="post" class="livraison-form">
+                                    <input type="hidden" name="action" value="livrer">
                                     <input type="hidden" name="commande_id" value="<?= (int)$c['id'] ?>">
                                     <input
                                         type="number"
@@ -260,10 +405,8 @@ if (isset($_GET['success'])) {
                                         max="<?= (int)$c['stock_pf'] ?>"
                                         placeholder="0"
                                         required
-                                        title="Maximum : <?= (int)$c['stock_pf'] ?> (stock PF)"
+                                        title="Maximum : <?= (int)$c['stock_pf'] ?> (stock PF actuel)"
                                     >
-                            </td>
-                            <td>
                                     <button class="btn green btn-sm" type="submit">✔ Livrer</button>
                                 </form>
                             </td>
@@ -275,7 +418,7 @@ if (isset($_GET['success'])) {
 
         <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;">
             🔴 En retard &nbsp;|&nbsp; 🟡 Dans les 2 prochains jours &nbsp;|&nbsp;
-            La quantité livrée ne peut pas dépasser le <strong>Stock PF</strong>.
+            Une livraison partielle réduit la quantité commandée et reste dans la liste jusqu'à 0.
         </p>
     <?php endif; ?>
 

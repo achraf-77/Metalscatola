@@ -5,6 +5,7 @@ $ref        = '';
 $result     = null;
 $error      = '';
 $searched   = false;
+$alreadyPending = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ref      = trim($_POST['ref'] ?? '');
@@ -23,6 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$result) {
             $error = "Aucun résultat trouvé pour la référence « " . htmlspecialchars($ref) . " ». Vérifiez la saisie.";
+        } else {
+            // Check if REF is already in pending commandes
+            $chk = $conn->prepare("SELECT id FROM commandes WHERE ref = :ref LIMIT 1");
+            $chk->execute([':ref' => $ref]);
+            $alreadyPending = (bool)$chk->fetch(PDO::FETCH_ASSOC);
         }
     } else {
         $error = "Veuillez saisir une référence.";
@@ -78,6 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #c92a2a;
             border-radius: var(--radius-sm);
             padding: 12px 16px;
+            font-size: .9rem;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+        .alert-warning {
+            background: #fff9db;
+            border: 1.5px solid #ffe066;
+            color: #856404;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
             font-size: .9rem;
             font-weight: 600;
             margin-top: 16px;
@@ -215,11 +231,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <div class="form-actions" style="justify-content:center;">
-                    <a class="btn green" href="livraison_commande.php?ref=<?= urlencode($result['ref']) ?>">
-                        ➜ Créer une commande
-                    </a>
-                </div>
+                <?php if ($alreadyPending): ?>
+                    <div class="alert-warning">
+                        ⚠ Cette référence est déjà dans les <strong>commandes en attente de livraison</strong>.
+                        Vous ne pouvez pas créer une deuxième commande pour la même référence.
+                    </div>
+                    <div class="form-actions" style="justify-content:center;margin-top:14px;">
+                        <a class="btn primary" href="livraison.php">→ Voir les commandes en attente</a>
+                    </div>
+                <?php else: ?>
+                    <div class="form-actions" style="justify-content:center;">
+                        <a class="btn green" href="livraison_commande.php?ref=<?= urlencode($result['ref']) ?>">
+                            ➜ Créer une commande
+                        </a>
+                    </div>
+                <?php endif; ?>
+
             <?php endif; ?>
 
         </div>

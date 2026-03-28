@@ -16,18 +16,49 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           cde_italie=VALUES(cde_italie),
           couverture=VALUES(couverture)";
 
+    $ref_val         = trim($_POST["ref"] ?? "");
+    $description_val = trim($_POST["description"] ?? "");
+    $format_val      = trim($_POST["format"] ?? "");
+    $client_val      = trim($_POST["client"] ?? "");
+    $stock_pf_val    = (int)($_POST["stock_pf"] ?? 0);
+    $stock_fb_val    = (int)($_POST["stock_fb"] ?? 0);
+    $stock_val       = (int)($_POST["stock"] ?? 0);
+    $arrivage_val    = (int)($_POST["arrivage"] ?? 0);
+    $cde_italie_val  = (int)($_POST["cde_italie"] ?? 0);
+    $couverture_val  = (int)($_POST["couverture"] ?? 0);
+
     $stmt = $conn->prepare($sql);
     $stmt->execute([
-        ":ref" => trim($_POST["ref"] ?? ""),
-        ":description" => trim($_POST["description"] ?? ""),
-        ":format" => trim($_POST["format"] ?? ""),
-        ":client" => trim($_POST["client"] ?? ""),
-        ":stock_pf" => (int)($_POST["stock_pf"] ?? 0),
-        ":stock_fb" => (int)($_POST["stock_fb"] ?? 0),
-        ":stock" => (int)($_POST["stock"] ?? 0),
-        ":arrivage" => (int)($_POST["arrivage"] ?? 0),
-        ":cde_italie" => (int)($_POST["cde_italie"] ?? 0),
-        ":couverture" => (int)($_POST["couverture"] ?? 0),
+        ":ref"         => $ref_val,
+        ":description" => $description_val,
+        ":format"      => $format_val,
+        ":client"      => $client_val,
+        ":stock_pf"    => $stock_pf_val,
+        ":stock_fb"    => $stock_fb_val,
+        ":stock"       => $stock_val,
+        ":arrivage"    => $arrivage_val,
+        ":cde_italie"  => $cde_italie_val,
+        ":couverture"  => $couverture_val,
+    ]);
+
+    // Also insert into appro_historique so the article appears in Historique
+    $hist = $conn->prepare("
+        INSERT INTO appro_historique
+            (ref, description, format, client, stock_pf, stock_fb, stock, arrivage, cde_italie, couverture, date_import)
+        VALUES
+            (:ref, :description, :format, :client, :stock_pf, :stock_fb, :stock, :arrivage, :cde_italie, :couverture, CURDATE())
+    ");
+    $hist->execute([
+        ":ref"         => $ref_val,
+        ":description" => $description_val,
+        ":format"      => $format_val,
+        ":client"      => $client_val,
+        ":stock_pf"    => $stock_pf_val,
+        ":stock_fb"    => $stock_fb_val,
+        ":stock"       => $stock_val,
+        ":arrivage"    => $arrivage_val,
+        ":cde_italie"  => $cde_italie_val,
+        ":couverture"  => $couverture_val,
     ]);
 
     //  par Redirection format
@@ -58,20 +89,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
     <div class="container wide">
 
-        <div class="topbar">
-            <div class="brand">
-                <img src="assets/logo.png" alt="Metalscatola Afrique" class="logo-img">
-            </div>
-            <div class="actions">
-                <a class="btn primary" href="table_autres.php">Voir le tableau</a>
-                <a class="btn primary" href="livraison.php">livraison</a>
-                <a class="btn primary" href="import_excel.php">Importer Excel</a>
-                <a class="btn primary" href="table_last.php">Dernier Excel</a>
-                <a class="btn primary" href="historique.php">Historique</a>
-                <button class="btn green" type="submit" form="approForm">Enregistrer</button>
-            </div>
-
-        </div>
+        <nav>
+            <a href="form.php" class="active">+ Ajouter</a>
+            <a href="table_d109.php">D109</a>
+            <a href="table_d180.php">D180</a>
+            <a href="table_d305.php">D305</a>
+            <a href="table_autres.php">Autres</a>
+            <a href="import_excel.php" class="btn primary">📥 Importer Excel</a>
+            <a href="table_last.php" class="btn primary">Dernier Excel</a>
+            <a href="livraison_search.php" class="btn primary">Livraison</a>
+            <a href="historique.php" class="btn primary">Historique</a>
+        </nav>
 
         <div class="card">
             <h2>Ajouter / Modifier un produit</h2>
